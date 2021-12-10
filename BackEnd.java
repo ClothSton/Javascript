@@ -6,3 +6,6 @@
 				#{item}
 			</foreach>
 
+//날짜저장
+import com.douzone.comet.service.util.StringUtil;
+StringUtil.getLocaleTimeString(item.getStart_ym(), "yyyyMM");
