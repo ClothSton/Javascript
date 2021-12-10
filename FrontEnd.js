@@ -1,7 +1,19 @@
+//그리드 컬럼 데이터 삽입
+grid.setCellValue(0, 'Name', '김더존');
 
+//날짜 포멧
+dews.date.format(endDate, 'yyyyMMdd')
 
 //그리드 현재포커스 로우 데이터
 self.grid_mst.dataItem(self.grid_mst.select()).EXP_DT
+
+function isNullToZero(data){
+  if(data === "" || data === undefined || data === null || data.length === 0){
+    return "";
+  } else{
+    return data;
+  }
+}
 
 //null 체크
 function isEmpty(data) {
@@ -106,6 +118,56 @@ $.when(
  self.pipeDataSource = gerp.CM.getCodeDtlDataSource("NP", "A00405", null, null, null, null, null);
  self.pipeDataSource_A00405 = self.pipeDataSource.NP.A00405;
  self.P_Drop_Read_Yn.setDataSource(self.pipeDataSource_A00405);
+ 
 
-//디버깅 소스 표시
+  //엑셀업로드
+  function excelUpload() {
+    console.log("sss " + self.ds_paytype);
+  
+    var opt = {
+      fillData: 'append',
+      mapping: {
+        'SQ_NO  ': '순번'
+        , 'PARTNER_CD': '거래선'
+        , 'EXP_DT': '접수일자'
+        , 'READ_FG_NM': '구독구분'
+        , 'GEMP_NM': '확장자'
+        //, 'GEMP_NO': '확장자ID'
+        //, 'READER_GROUP_CD_NM': '단체명'
+        , 'PAY_TYPE_CD_NM': '납부방법'
+        , 'EXPANDER_FG_NM': '확장자구분'
+        , 'READER_KIND_FG_NM': '정산구분'
+        , 'COLLT_START_YM': '첫수금월'
+        , 'READR_NM': '구독자명'
+        , 'OFFICE_TEL': '구독자전화번호'
+        , 'HANDPHONE': '구독자핸드폰'
+        , 'POST_NO': '우편번호'
+        , 'ADDR1': '주소'
+        , 'ADDR2': '주소상세'
+        , 'CTR_CD_NM': '관할센터'
+        , 'MEDIA_CD_NM': '구독매체'
+        , 'BUSU_CNT': '부수'
+        , 'LIVE_FG_NM': '거주형태'
+        , 'RQS_DELIVERY_DT': '배달게시일'
+        , 'DC': '비고'
+      },
+      fileDialog: true
+    };
+  
+    self.grd_main.importExcel(opt).done(function (result) {
+      //데이터 변환 로직 넣으면된다능
+    }).fail(function (error) {
+      // excel 이 정상적으로 import 되지 않았을 경우 동작할 로직 구현
+    });
+  }
+  
+  //foreach
+  $.each(self.ds_read_fg.data(), function (index, item) {
+    if (self.ds_read_fg.data()[index].SYSDEF_CD == self.grd_main.getCellValue(grdindex, "READ_FG_NM")) {
+      self.grd_main.setCellValue(grdindex, "READ_FG", self.ds_paytype.data()[index].SYSDEF_NM)
+    }
+  });
+
+
+  //디버깅 소스 표시
  //# sourceURL=view/AU/ABMITM00300.js
