@@ -1,3 +1,100 @@
+//공통 소스경로
+//C:\Douzone\dews-web\view\js\MA
+
+//CSS display
+if(data.length > 0){
+  $("#itaots_num", self.$content).text(data.length);
+}else{
+  $(".itaots span", self.$content).css("display", "none");  //숨기기
+  $(".itaots span", self.$content).css("display", "block"); //보이기
+}
+
+//API호출방법
+dews.api.get(dews.url.getApiUrl('IA', 'SetTestEnvironmentSTEService', dews.string.format('istste00100_list')), {
+  async: false,
+}).done(function (data){
+  //데이터 가공영역
+  var defaultGubn = IA.COMMON.getEvalPlanDefault();
+  for(var i =0; i < data.length; i++){
+    if(defaultGubn.DATA1 == data[i].EVAL_PRID_SQ)
+    {
+      STATE = data[i].STATE;
+    }
+  }
+})
+
+//메뉴이동
+dews.ui.openMenu('IA', 'IAIAIM00200');
+
+//Dialog로 넘겨진 데이터 불러오기
+var dialog = dews.ui.dialog(self.id);
+var init = dialog.getInitData();
+
+//그리드 드롭다운 공통코드 사용
+[
+  {
+    field: "BIL_TYPE",
+    title: "위수탁/즉시발행구분",
+    width: 120,
+    editor: {
+      type: "dropDown",
+      dataSource: self.ds_billtype,
+      dataValueField: "SYSDEF_CD",
+      dataTextField: "SYSDEF_NM",
+    },
+  },
+];
+
+self.ds_billtype = dews.ui.dataSource('ds_billtype', {
+  transport: {
+    read: {
+      url: dews.url.getApiUrl('CM', 'CommonCodeDtlService', 'common_codeDtl_list'),
+      data: function () {
+        return {
+          base_dt: '',
+          end_dt: '',
+          foreign_yn: '',
+          field_cd_pipe: 'A00401',
+          module_cd: 'NP',
+          syscode_yn: '',
+          keyword: '',
+          base_yn: ''
+        };
+      }
+    }
+  },
+  schema: {
+    model: {
+      fields: [
+        { field: 'MODULE_CD', editable: false, type: 'string' },
+        { field: 'FIELD_CD', editable: false, type: 'string' },
+        { field: 'SYSDEF_CD', editable: false, type: 'string' },
+        { field: 'SYSDEF_NM', editable: false, type: 'string' },
+        { field: 'FLAG_CD', editable: false, type: 'string' },
+        { field: 'END_DT', editable: false, type: 'string' },
+        { field: 'SYSCODE_YN', editable: false, type: 'string' },
+        { field: 'DRS_CD', editable: false, type: 'string' },
+        { field: 'SELECTABLE', editable: false, type: 'string' },
+        { field: 'DISP_SQ', editable: false, type: 'number' },
+        { field: 'RMK_DC', editable: false, type: 'string' },
+        { field: 'REL_FLAG_1_CD', editable: false, type: 'string' },
+        { field: 'REL_FLAG_2_CD', editable: false, type: 'string' },
+        { field: 'REL_FLAG_3_CD', editable: false, type: 'string' },
+        { field: 'REL_FLAG_4_CD', editable: false, type: 'string' },
+        { field: 'REL_FLAG_5_CD', editable: false, type: 'string' },
+        { field: 'UP_SYSDEF_CD', editable: false, type: 'string' },
+        { field: 'UP_MODULE_CD', editable: false, type: 'string' },
+        { field: 'UP_FIELD_CD', editable: false, type: 'string' },
+        { field: 'HIKEY_YN', editable: false, type: 'string' }
+      ]
+
+    }
+  }
+});
+
+//그리드 포커스 확인
+self.grid.focused
+
 //그리드 컬럼 데이터 삽입
 grid.setCellValue(0, 'Name', '김더존');
 
@@ -23,6 +120,9 @@ function isEmpty(data) {
       return false;
     }
   }
+
+//폼패널 바인딩
+self.grid1.bindPanel(self.panel1);
 
 //폼패널 활성화/비활성화
 function CtrlReadOnly(Flag){
