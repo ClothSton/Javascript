@@ -1,6 +1,9 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//그리드 editable 설정
+dewself.grid.setOptions({ editable: self.mcpCdCorp.length > 1 ? false : true})
+
 //CSS display
 if(data.length > 0){
   $("#itaots_num", self.$content).text(data.length);
