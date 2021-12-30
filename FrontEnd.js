@@ -11,6 +11,8 @@ if(data.length > 0){
   $(".itaots span", self.$content).css("display", "none");  //숨기기
   $(".itaots span", self.$content).css("display", "block"); //보이기
 }
+//CSS BINDING
+$("#content_ITADTP00400 #CTRL_ACTV_NM").text("["+ rowData.ACTV_CD + "] " + rowData.ACTV_NM);
 
 //API호출방법
 dews.api.get(dews.url.getApiUrl('IA', 'SetTestEnvironmentSTEService', dews.string.format('istste00100_list')), {
