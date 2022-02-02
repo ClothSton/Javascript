@@ -31,6 +31,14 @@ function handleTitleClick(){
 title.addEventListener("click", handleTitleClick); 
 title.onclick("click", handleTitleClick);
 
+//리로드
+document.getElementById(self.id).onreload = function() {
+  searchData();
+}
+
+//다른 클래스 호출
+document.getElementById('IAWD_210316_0002').onreload();
+
 //그리드 editable 설정
 dewself.grid.setOptions({ editable: self.mcpCdCorp.length > 1 ? false : true})
 
