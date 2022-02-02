@@ -1,6 +1,25 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//window이벤트
+function handleWindowResize(){
+  document.body.style.backgrundColor = "tomato";
+}
+//사이즈가 변경되었을때 발생
+window.addEventListener("resize", handleWindowResize);
+//wifi가 연결되었을때 발생
+window.addEventListener("online", event);
+//wifi가 연결해제되었을때 발생
+window.addEventListener("offline", evnet);
+
+//HTML이벤트
+var title = document.querySelector("div.hello:first-child h1");
+function handleTitleClick(){
+  title.style.color = "blue";
+}
+title.addEventListener("click", handleTitleClick); 
+title.onclick("click", handleTitleClick);
+
 //그리드 editable 설정
 dewself.grid.setOptions({ editable: self.mcpCdCorp.length > 1 ? false : true})
 
