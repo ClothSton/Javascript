@@ -1,6 +1,17 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//너의위치 이벤트 //openweathermap.org/api 에서 현재값파라미터로 넘겨줄때의 API찾아서 날씨 찍어줄수있음
+function onGeoOk(position){
+  var lat = position.coords.latitude;
+  var lng = position.coords.longitude; 
+  console.log("You live it", lat, lng);
+}
+function onGeoError(){
+  alert("Can't find you. No weather for you.");
+}
+navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
+
 //window이벤트
 function handleWindowResize(){
   document.body.style.backgrundColor = "tomato";
