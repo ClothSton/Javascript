@@ -81,3 +81,19 @@ StringUtil.getLocaleTimeString(item.getStart_ym(), "yyyyMM");
 	    }
 	}
 	/* */
+
+	/* */
+	<if test='P_CALCTYPE != ""'>
+	AND a.READER_KIND_FG = #{P_CALCTYPE}
+</if>
+<choose>
+	<!-- 환불정산사용여부 (전월선택) -->
+	<when test='P_CB1.equals("1") and P_MONTH.equals("")'>
+		AND NVL(a.CALC_USE_YM, '100001') != '100001'
+	</when>
+	<!-- 환불정산사용여부 (특정월선택) -->
+	<when test='P_CB1.equals("1") and P_MONTH != ""'>
+		AND NVL(a.CALC_USE_YM, '100001') = #{P_MONTH}
+	</when>
+</choose>	
+	/* */
