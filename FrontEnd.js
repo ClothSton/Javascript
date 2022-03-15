@@ -1,6 +1,43 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//그리드 코드피커 비활성화
+dews.ui.grid(self.$grid_mst, {
+  dataSource: self.MainGridDataSource,
+  height: 200,
+  editable: true,
+  selectable: true,
+  copyMode: 'cell',
+  columns: [
+{
+  field: 'ISSUE_ID',
+  title: '발행자ID',
+  width: 60,
+  editor: {
+    type: 'codepicker',
+    helpCode: 'H_CI_USER_MST_S',
+    codeField: 'USER_ID',
+    textField: 'USER_NM',
+    gridCodeField: 'ISSUE_ID',
+    gridTextField: 'ISSUE_NM',
+    helpTitle: '사용자 도움창',
+    helpSize: 'medium',
+    editable: function (e){
+      if (e.row.data.ISSUE_ST == "15") {
+        return false;
+      }
+      return true;
+    },
+    helpParams: function () {
+      return {
+        company_cd: '',
+        menugrp_cd: ''
+      };
+    }
+  }
+}
+  ]
+
 //너의위치 이벤트 //openweathermap.org/api 에서 현재값파라미터로 넘겨줄때의 API찾아서 날씨 찍어줄수있음
 function onGeoOk(position){
   var lat = position.coords.latitude;
