@@ -1,6 +1,9 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//그리드 엑셀다운로드
+self.grid.saveAsExcel({fileName: '엑셀파일명', lookupDisplay: true /*화면데이터그대로 저장여부*/})
+
 //그리드 코드피커 비활성화
 dews.ui.grid(self.$grid_mst, {
   dataSource: self.MainGridDataSource,
