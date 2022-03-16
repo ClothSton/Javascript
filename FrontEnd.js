@@ -1,6 +1,31 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+/*재귀함수 사용
+//트리구조 재귀 돌려서 값 변경 2022.03.16 CS:)
+      for(var i = 0; i < Ds.length; i++){
+        TreeFindChildren(Ds[i].items);
+      }
+*/
+
+//재귀함수
+function TreeFindChildren(items) {
+  $.each(items, function (idx, item) {
+    if (!isEmpty(item.items)) {
+      TreeFindChildren(item.items);
+    }
+    ValueChange(item);
+  })
+}
+
+function ValueChange(data){
+  for(var i = 1; i <= 7; i++){
+    var str = "COMP" + i;
+    var str2 = "ICON" + i;
+    data[str2] = data[str] === '1' ? "O" : data[str] === '2' ? "△" : data[str];
+  }
+}
+
 //그리드 엑셀다운로드
 self.grid.saveAsExcel({fileName: '엑셀파일명', lookupDisplay: true /*화면데이터그대로 저장여부*/})
 
