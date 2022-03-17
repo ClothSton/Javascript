@@ -8,6 +8,15 @@
       }
 */
 
+//그리드 첨부파일 컬럼 파일존재유무 이미지 삽입하기
+style: function (e){
+    var style = { icon: { position: 'center'}};
+    if(e.row.data.SGNT_FGRP_SQ != null){
+      style.icon.image = '/view/images/IA/file_icon.png';
+    }
+    return style;
+  }
+
 //재귀함수
 function TreeFindChildren(items) {
   $.each(items, function (idx, item) {
@@ -17,7 +26,6 @@ function TreeFindChildren(items) {
     ValueChange(item);
   })
 }
-
 function ValueChange(data){
   for(var i = 1; i <= 7; i++){
     var str = "COMP" + i;
@@ -65,6 +73,7 @@ dews.ui.grid(self.$grid_mst, {
   }
 }
   ]
+}
 
 //너의위치 이벤트 //openweathermap.org/api 에서 현재값파라미터로 넘겨줄때의 API찾아서 날씨 찍어줄수있음
 function onGeoOk(position){

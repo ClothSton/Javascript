@@ -1,0 +1,638 @@
+<!--##0abdf6b5-4e75-4465-9511-46c31c467369##-->
+<!--##ABMITM00100##-->
+<!--##IpEFHgpqZxsb+mNR2dCX1a8mv5Lu8nkf3XIdBazVxzg=##-->
+<!--
+  DEWS UI/UX IDE - Build Result - v1.5
+  # PageID: ABMITM00100
+  # PageTitle: 감사전략
+  # Server: http://localhost:8080/
+-->
+<!--
+
+-->
+
+<div id="searchCondition" class="dews-ui-condition-panel">
+    <ul class="required-area">
+      <li>
+        <label class="dews-ui-multilingual">조회년도</label>
+        <span>
+          <input type="text" id="mActg_yy" name="mActg_yy" class="dews-ui-yearpicker required" />
+        </span>
+      </li>
+      <li>
+        <div style="float: right">
+          <button id="btnPrintU" class="dews-ui-button dtl_btn" data-dews-localize-key="D0000669">인쇄</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="dews-ui-container-panel" data-dews-fit-bottom="true">
+    <div class="dews-container-item" data-dews-position="normal">
+      <div id="treeGrid" class="dews-ui-treegrid"></div>
+    </div>
+  </div>
+  
+  <style>
+  
+  </style>
+  
+  
+  
+  <script>
+    dews.ready(function () {
+      var self = this;
+      self.version = self.version || {};
+      self.version.view='1.0.21102901';
+      self.version.service='ABMITM00100_SERVICE';
+  
+  
+      //print
+      var IA;
+      dews.ajax.script('~/view/js/IA/ia.cm.js', {
+        once: true,
+        async: false
+      }).done(function() {
+        IA = gerp.IA;
+      });
+  
+      //# sourceURL=view/AU/ABMITM00100.js
+  
+      // MARK : variables --------------------------------
+      var self = this;
+  
+      var selectedActgYy;
+      var RowStateEnum = Object.freeze({
+        ADDED: 'added',
+        UPDATED: 'updated',
+        NONE: 'none'
+      })
+  
+      // MARK : initLoad --------------------------------
+      dews.ui.mainbuttons.delete.useDefaultConfirm = false;
+  
+      $.when(
+        dews.ajax.script('~/view/js/AU/au.cm.js', { once: true, async: false }),
+        dews.ajax.script('~/view/js/MA/ma.cm.msg.js', { once: true, async: false }),
+        dews.ajax.script('~/view/js/CM/cm.bscm.js', { once: true, async: false })
+      ).done(function() {
+      });
+  
+      // default year
+      self.mActg_yy.value(gerp.AU.DATE.getYYYY(0));
+  
+      self.pipeDataSource = gerp.CM.getCodeDtlDataSource("AU", "P00100|", null, null, null, null, null);
+      self.pipeDataSource_P00100 = self.pipeDataSource.AU.P00100;
+  
+      for(var i = self.pipeDataSource_P00100.data().length - 1; i >= 0; i--) {
+        if(self.pipeDataSource_P00100.at(i).SYSDEF_CD != "01" && self.pipeDataSource_P00100.at(i).SYSDEF_CD != "02" && self.pipeDataSource_P00100.at(i).SYSDEF_CD != "03"
+        && self.pipeDataSource_P00100.at(i).SYSDEF_CD != "04" && self.pipeDataSource_P00100.at(i).SYSDEF_CD != "05" && self.pipeDataSource_P00100.at(i).SYSDEF_CD != "06") {
+          self.pipeDataSource_P00100.remove(self.pipeDataSource_P00100.at(i));
+        }
+      }
+  
+      self.dt = dews.ui.treeDataSource('dt', {
+        grid: true,
+        transport: {
+          read: {
+            url: dews.url.getApiUrl('AU', 'ABMITM00100_SERVICE', 'abmitm00100_list_tree'),
+            data: function () {
+              return {
+                actg_yy: self.mActg_yy.value()
+              };
+            }
+          }
+        },
+        schema: {
+          model: {
+            childrenField: 'items',
+            fields: [
+              { field: 'GUBN', editable: false, dataType: 'string' },
+              { field: 'TITLE_NM', editable: false, dataType: 'string' },
+              { field: 'CODE_CD', editable: false, dataType: 'string' },
+              { field: 'NAME_NM', editable: false, dataType: 'string' },
+              { field: 'UP_CODE_CD', editable: false, dataType: 'string' },
+              { field: 'AUDIT_STRG_FG', editable: false, dataType: 'string' },
+              { field: 'FROM_DT', editable: false, dataType: 'string' },
+              { field: 'TO_DT', editable: false, dataType: 'string' },
+              { field: 'RMK_TXT', editable: false, dataType: 'string' },
+              { field: 'FGRP_SQ', editable: false, dataType: 'string' },
+              { field: 'items', editable: false, dataType: 'object' }
+            ]
+          }
+        },
+        error: /*5ef6a490-2896-45b2-86a4-bd3ecbf8aaa8*/ function (e) {
+          dews.ui.loading.hide();
+  
+          setTimeout(function () {
+            dews.error(e.message || dews.localize.get('작업이 실패하였습니다.', 'M0000055'));
+          }, 100);
+        }
+      });
+  
+      dews.ui.treegrid(self.$treeGrid, {
+        dataSource: self.dt,
+        selectable: true,
+        sortable: false,
+        editable: true,
+        autoBind: false,
+        checkable: false,
+        stateColumn: true,
+        copyMode: 'cell',
+        noData: true,
+        columns: [
+          {
+            field: 'TITLE_NM',
+            title: '감사전략',
+            width: 240,
+            align: 'left',
+            attributes: { class : 'required' },
+            editor: {
+              type: 'string',
+              maxLength: 20,
+              editable: function (e) {
+                return e.row.index > 1; //트리는 인데스 1부터 시작
+              }
+            },
+            style: function (e) {
+              var style = {icon: {position: 'left'}};
+              if (e.row.data.GUBN == "1") { //감사전략
+                style.icon.image = '/view/images/AU/grid_1.png';
+              }
+              return style;
+            },
+            //renderer: { showTooltip: true }
+          },
+          {
+            field: 'CODE_CD', title: '항목코드', width: 50, visible: false
+          },
+          {
+            field: 'NAME_NM', title: '항목명', width: 50, visible: false
+          },
+          {
+            field: 'UP_CODE_CD', title: '상위항목코드', width: 50, visible: false
+          },
+          {
+            field: 'AUDIT_STRG_FG',
+            title: '전략구분',
+            width: 70,
+            attributes: { class : 'required' },
+            editor: {
+              type: 'dropDown',
+              dataSource: self.pipeDataSource_P00100,
+              dataValueField: 'SYSDEF_CD',
+              dataTextField: 'SYSDEF_NM',
+              editable: function (e) {
+                return e.row.index > 1;
+              }
+            }
+          },
+          {
+            field: 'FGRP_SQ',
+            title: '첨부파일',
+            width: 60,
+            style: function(e) {
+              var style = { icon: { position: 'center' } };
+              if (e.row.data.FGRP_SQ != null) {
+                  style.icon.image = '/view/images/AU/text_icon.png';
+              }
+              return style;
+            },
+            editor: {
+              editable: function (e) {
+                return false;
+              }
+            }
+          },
+          {
+            field: 'RMK_TXT',
+            title: '비고',
+            width: 130,
+            align: 'left',
+            editor: {
+              type: 'string',
+              maxLength: 1000,
+              editable: function (e) {
+                return e.row.index > 1;
+              }
+            },
+            renderer: { showTooltip: true }
+          },
+          {
+            field: 'FROM_DT',
+            title: '시작일',
+            width: 60,
+            attributes: { class : 'required' },
+            formats: {
+              type: 'date',
+              predefined: true,
+              format: 'MA00007'
+            },
+            editor: {
+              type: 'date',
+              predefined: true,
+              format: 'MA00007',
+              editable: function (e) {
+                return e.row.index > 1;
+              }
+            }
+          },
+          {
+            field: 'TO_DT',
+            title: '종료일',
+            width: 60,
+            formats: {
+              type: 'date',
+              predefined: true,
+              format: 'MA00007'
+            },
+            editor: {
+              type: 'date',
+              predefined: true,
+              format: 'MA00007',
+              editable: function (e) {
+                return e.row.index > 1;
+              }
+            }
+          },
+          {
+            field: 'GUBN', title: '구분', width: 50, visible: false
+          }
+        ],
+        fixed: {
+          colCount: 0,
+          rightColCount: 0
+        },
+        dataBound: function (e) {
+          self.treeGrid.expandAll();
+  
+          var style = { background: '#F5F5F5', fontBold: true };
+          e.treegrid.setRowStyle(1, style);
+  
+          selectedActgYy = self.mActg_yy.value();
+  
+          dews.ui.loading.hide();
+  
+          if (e.row.data.length == 0) {
+            dews.ui.snackbar.info(gerp.MA.MSG.SEARCH_NO_DATA_ALERT);
+          }
+        },
+        rowAdd: function (e) {
+  
+          var row = e.treegrid.getParentsData(e.row.index, false)[0];
+  
+          e.treegrid.setCellValue(e.row.index, 'GUBN', "1", false);
+          e.treegrid.setCellValue(e.row.index, 'CODE_CD', gerp.AU.CODE.get("02", ""), false);
+          e.treegrid.setCellValue(e.row.index, 'AUDIT_STRG_FG', "01", false);
+          e.treegrid.setCellValue(e.row.index, 'UP_CODE_CD', row["CODE_CD"], false);
+          e.treegrid.setCellValue(e.row.index, 'FROM_DT', row["FROM_DT"], false);
+          e.treegrid.setCellValue(e.row.index, 'TO_DT', row["TO_DT"], false);
+  
+          e.treegrid.select(e.row.index, "TITLE_NM");
+        },
+        dblClicked: function (e) {
+          if (e.cell.field == "FGRP_SQ" && e.row.index != 1) {
+            viewFile(e.row.data.FGRP_SQ);
+          }
+        },
+        save:  function (e) {
+          if (e.cell.field == "FROM_DT" || e.cell.field == "TO_DT") {
+            if (e.row.data.FROM_DT != null && e.row.data.TO_DT != null) {
+  
+              if (e.row.data.TO_DT < e.row.data.FROM_DT) { //Date형
+                dews.alert('종료일 보다 시작일이 빠릅니다.', "warning").done(function () {
+                  e.treegrid.setCellValue(e.row.index, e.cell.field, null, false);
+                  e.treegrid.select(e.row.index, e.cell.field);
+                });
+              }
+            }
+          }
+        }
+      });
+  
+  
+      dews.ui.mainbuttons.localize.disable(true);
+      dews.ui.mainbuttons.add.click(/*2e823d52-6bdb-4f50-9168-4176d8a97b01*/ function (e) {
+        if (getChildYn()) {
+          dews.confirm("선택된 감사전략에 실행과제가 등록되어 있습니다." + "\n" + "추가를 계속하시겠습니까?", "question").yes(function () {
+            //추가
+          }).no(function () {
+            e.preventDefault();
+            return false;
+          })
+        }
+  
+        self.treeGrid.append(self.treeGrid.select());
+      });
+  
+      function getChildYn() {
+        var ret = false;
+  
+        dews.api.get(dews.url.getApiUrl('AU', 'ABMITM00100_SERVICE', 'abmitm00100_list_child'), {
+          async: false,
+          data: {
+            audit_strg_cd: self.treeGrid.getCellValue(self.treeGrid.select(), "CODE_CD")
+          }
+        }).done(function (data) {
+          if (data == "Y") {
+            return true;
+          }
+        });
+  
+        return ret;
+      }
+  
+      dews.ui.mainbuttons.search.click(/*9fde926b-6f52-40b1-9797-0c054b7e2a87*/ function (e) {
+        // if (self.dt.isDataLoading()) { //트리데이터소스에는 없음
+        //   return;
+        // }
+  
+        if (!Chk()) {
+          e.preventDefault();
+          return;
+        }
+  
+        if (IsChanged()) {
+          dews.confirm(gerp.MA.MSG.SEARCH_AGAIN_CONFIRM, "question").yes(function () {
+            searchData(true);
+          }).no(function () {
+            e.preventDefault();
+          });
+        } else {
+          searchData(true);
+        }
+      });
+  
+      //Closing
+      self.closing.on(function(e) {
+        if(IsChanged()){
+          return dews.confirm(gerp.MA.MSG.CLOSE_CONFIRM, "ico2").yes(function(){
+            //close
+          }).no(function(){
+            e.preventDefault();
+          })
+        }
+      });
+  
+      function searchData(isfocus) {
+  
+        try {
+          dews.ui.loading.show({ text: gerp.MA.MSG.SEARCH_LOADING });
+  
+          self.dt.read();
+        }
+        catch (exception) {
+          dews.error(exception);
+        }
+      }
+  
+      function Chk() {
+        if (self.searchCondition.validate({ tooltip: true, message: gerp.MA.MSG.SAVE_VALID_ALERT })) {
+          return true;
+        } else {
+          $(self.$cboVersion).focus();
+          return false;
+        }
+      }
+  
+      function CanSave() {
+        return true;
+      }
+  
+      function IsChanged() {
+        if (CanSave() && self.dt.getDirtyDataCount() > 0) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
+  
+      dews.ui.mainbuttons.delete.click(/*8aa6f158-64a8-4c75-8ee0-dace75ac0b51*/ function (e) {
+  
+        var rowData = self.treeGrid.dataItem(self.treeGrid.select());
+  
+        if (rowData) {
+          if (!rowData.CODE_CD) {
+            dews.alert('최상위 항목은 삭제할 수 없습니다.', 'warning');
+          }
+          else {
+            var msg = "선택된 항목을 삭제하시겠습니까?";
+            if (rowData.items != null && rowData.items.length > 0) {
+              msg = msg + "\n" + "단, 하위 항목도 삭제가 됩니다."
+            }
+  
+            dews.confirm(msg, "question").yes(function () {
+              delteChildRow(self.treeGrid.select());
+            }).no(function () {
+              e.preventDefault();
+            });
+          }
+        }
+      });
+  
+      function delteChildRow(index) {
+  
+        var rowIdxs = self.treeGrid.getChildrenIndex(index, true);
+  
+        if (rowIdxs != null) {
+          for (var i = rowIdxs.length - 1; i >= 0; i--) {
+            self.treeGrid.remove(rowIdxs[i]);
+          }
+        }
+  
+        self.treeGrid.remove(index);
+      }
+  
+      dews.ui.mainbuttons.save.click(/*78b95144-41b5-40b7-b57a-e41fe16c714d*/ function (e) {
+  
+        if (IsChanged()) {
+          saveData();
+        }
+        else {
+          dews.ui.snackbar.warning(gerp.MA.MSG.SAVE_NO_DATA_ALERT);
+        }
+      });
+  
+      function saveData() {
+  
+        var ret = verify();
+        if (!ret) {
+  
+          var confirm = dews.confirm(gerp.MA.MSG.SAVE_CONFIRM, "question").yes(function () {
+  
+            confirm.dialog.dialog.bind('deactivate', function () {
+  
+              dews.ui.loading.show({ text: gerp.MA.MSG.SAVE_LOADING });
+              dews.api.post(dews.url.getApiUrl("AU", "ABMITM00100_SERVICE", "abmitm00100_save"), {
+                async: false,
+                dataType: 'json',
+                data: {
+                  Deleted: JSON.stringify(self.dt.getDirtyData().Deleted),
+                  Added: JSON.stringify(self.dt.getDirtyData().Added),
+                  Updated: JSON.stringify(self.dt.getDirtyData().Updated)
+                }
+              }).done(function () {
+  
+                searchData(false);
+                dews.alert(gerp.MA.MSG.SAVE_DONE_ALERT);
+  
+              }).fail(function (message) {
+                dews.error(message);
+              }).always(function () {
+                dews.ui.loading.hide();
+              });
+            });
+          }).no(function () {
+            return false;
+          });
+        }
+        else {
+          dews.alert(ret.msg, "warning").done(function() {
+            if (ret.index != 0) {
+              self.treeGrid.select(ret.index, ret.col);
+            }
+          });
+        }
+      }
+  
+      self.$btnPrintU.on('click', function() {
+        //리포트id
+        // var reportId = "Z_AEMAER00300_1";
+  
+        // var items = [
+        //   { RPRT_CD: reportId, OBJECT_CD: "Z_AEMAER00300_1", PARA_CD: "audit_cd", PARA_TXT: "AU" + "YYYYMMDD" },
+        //   { RPRT_CD: reportId, OBJECT_CD: "Z_AEMAER00300_1", PARA_CD: "actg_yy", PARA_TXT: "YYYY" },
+        //   { RPRT_CD: reportId, OBJECT_CD: "Z_AEMAER00300_1", PARA_CD: "company_cd", PARA_TXT: "KGT1" },
+        // ];
+        // IA.PRINT.invoke(self, reportId, items);
+  
+        var printParameters;
+        /* Report ID */
+        var reportId = "Z_AEMAER00300_1";
+        /* Object ID */
+        var objectId = "Z_AEMAER00300_01";
+        var items = new Array();
+  
+        // if (self.gridFr.getCellValue(self.gridFr.select(), 'AUDIT_DOC_CD') == null) {
+        //   dews.alert("문서구분이 선택되지 않았습니다.", "warning");
+        // } else {
+          // var printType = self.gridFr.getCellValue(self.gridFr.select(), 'AUDIT_DOC_CD');
+          printParameters = [];
+  
+          printParameters = [
+            { name: "DOC_NO", value: "" }         //일련번호
+            , { name: "EMP_NO", value: "" }       //수령자
+            , { name: "Year", value: "" }         //상단 년
+            , { name: "Month", value: "" }        //상단 월
+            , { name: "Day", value: "" }          //상단 일
+            , { name: "REVIEW_CNTN", value: "" }  //~에 대한
+            , { name: "SYSDEF_NM", value: "" }    //ㅇㅇ감사시
+            , { name: "Year2", value: "" }        // 하단 년
+            , { name: "Month2", value: "" }       // 하단 월
+            , { name: "Day2", value: "" }         // 하단 일
+            , { name: "EMP_NM", value: "" }       // 감사반장
+            , { name: "DEPT_CD", value: "" }      // 소관
+            , { name: "START_DT2", value: "" }    // 시행년월일
+            , { name: "AUDIT_DSPS_CD", value: "" }//처분종류
+            , { name: "TOT_AMT", value: "" }      //금액
+            , { name: "CNT", value: "" }          //인원
+            , { name: "userSign", value: "" }     //(인)
+            , { name: "TITL_DC", value: ""}       //제목
+            , { name: "CNTN_TXT", value: ""}      //내용
+            , { name: "TRMT_RST_TXT", value: ""}  //조치할사항
+          ];
+  
+          $.each(printParameters, function (idx, data) {
+            items.push({
+              CD_REPORT: reportId,
+              OBJECT_CD: objectId,
+              PARA_CD: printParameters[idx].name,
+              PARA_TXT: printParameters[idx].value
+            })
+          });
+  
+          /* 파라미터 저장 요청 */
+          dews.api.post(dews.url.getApiUrl("CM", "printService", "setPrintParam"), {  //변경 : ReportService -> printService, setReportParam -> setPrintParam
+            async: false,
+            data: {
+              reportCode: reportId, // 변경 : cdReport -> reportCode
+              items: JSON.stringify(items)
+            }
+          }).done(function (data) {
+            /* 파라미터 키 리턴 */
+            var parameterKey = data;
+            if (parameterKey != "" && parameterKey != null) {
+              /* 인증토큰 */
+              var authToken = JSON.parse(self.token).access_token;
+  
+              /* 출력물 정보 */
+              var reportInfoUrl = window.location.protocol + "//" + window.location.host + "/api/CM/printService/getPrintFormList";   //변경 : ReportService -> printService, getReportFormList -> getPrintFormList
+  
+              /* DRWebViewer 호출 */
+              location.href = 'GERP://" "' + authToken + '" "' + reportId + '" "' + reportInfoUrl + '" "' + parameterKey + '" "' + "AEMAER00300";   //변경 : DRWeb2:// -> GERP://
+            }
+          });
+  
+        //}
+  
+      });
+  
+      function verify() {
+  
+        var ret = null;
+  
+        var rows = self.treeGrid.sortDataItems();
+        for (var idx = 1; idx < rows.length; idx++) {
+          if (self.treeGrid.getRowState(idx + 2) == RowStateEnum.ADDED || self.treeGrid.getRowState(idx + 2) == RowStateEnum.UPDATED) {
+            if (!rows[idx].CODE_CD) {
+              ret = { index: 0, msg: "자동채번에 문제가 있습니다.", col: null };
+              break;
+            }
+          }
+        }
+  
+        if (ret == null) {
+          var resultData = self.treeGrid.validate({ mode: true });
+          if (!resultData.result) {
+            if (resultData.fields.length > 0 && resultData.fields[0]) {
+              ret = { index: resultData.fields[0].rowIndex,
+                      msg: self.treeGrid.columns[resultData.fields[0].columnName].title + ' 입력은 필수입력항목입니다.',
+                      col: resultData.fields[0].columnName };
+            }
+          }
+        }
+  
+        return ret;
+      }
+  
+      function viewFile(fgrp_sq) {
+  
+        var initData = {
+          file_sq: fgrp_sq,
+          options: {
+            download: true,
+            upload: true
+          }
+        };
+  
+        dews.ui.dialog('H_AU_FILE_C', {
+          url: '~/codehelp/AU/H_AU_FILE_C',
+          title: '감사전략 첨부파일',
+          width: 700,
+          height: 300,
+          initData: initData,
+          ok: function (data) {
+            self.treeGrid.setCellValue(self.treeGrid.select(), 'FGRP_SQ', data.fgrp_sq, false);
+          }
+        }).open();
+      }
+  
+      dews.ui.mainbuttons.search.click();
+  
+      //# sourceURL=view/AU/ABMITM00100.js
+  
+    });
+  
+  
+  </script>
+  
