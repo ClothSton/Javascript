@@ -1,3 +1,22 @@
+//XML DB체크
+<choose>
+		    		<when test='DbProvider.equals("MARIADB")'>
+		    		STR_TO_DATE((#{INSERT_DTS}), '%Y-%m-%d %H:%i:%S'),
+		    		</when>
+		    		<otherwise>
+		    		TO_DATE((#{INSERT_DTS}), 'YYYY-MM-DD HH24:MI:SS'),
+		    		</otherwise>
+		    	</choose>
+		    	#{UPDATE_ID},
+		    	<choose>
+		    		<when test='DbProvider.equals("MARIADB")'>
+		    		STR_TO_DATE((#{UPDATE_DTS}), '%Y-%m-%d %H:%i:%S'),
+		    		</when>
+		    		<otherwise>
+		    		TO_DATE((#{UPDATE_DTS}), 'YYYY-MM-DD HH24:MI:SS')
+		    		</otherwise>
+		    	</choose>
+
 //쿼리 분기태우기(xml)
  <if test='p_cpk_extennm != null and !"".equals(p_cpk_extennm)'>
 

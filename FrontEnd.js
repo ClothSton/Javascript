@@ -1,12 +1,14 @@
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
-/*재귀함수 사용
-//트리구조 재귀 돌려서 값 변경 2022.03.16 CS:)
-      for(var i = 0; i < Ds.length; i++){
-        TreeFindChildren(Ds[i].items);
-      }
-*/
+//그리드 컬럼 너비 조절
+self.grid._grid.setColumnProperty("IN_HEADER","width", width_value); 
+
+//현재선택된 탭 확인
+var tabId = self.tabPanel.openItem._item[0].id;
+
+//현재탭이 선택됐는지 확인
+if(self.$tab1.attr('class').includes('on'))
 
 //그리드 첨부파일 컬럼 파일존재유무 이미지 삽입하기
 style: function (e){
@@ -16,6 +18,13 @@ style: function (e){
     }
     return style;
   }
+
+/*재귀함수 사용
+//트리구조 재귀 돌려서 값 변경 2022.03.16 CS:)
+      for(var i = 0; i < Ds.length; i++){
+        TreeFindChildren(Ds[i].items);
+      }
+*/
 
 //재귀함수
 function TreeFindChildren(items) {
@@ -73,23 +82,23 @@ dews.ui.grid(self.$grid_mst, {
   }
 }
   ]
-}
+},
 
 //너의위치 이벤트 //openweathermap.org/api 에서 현재값파라미터로 넘겨줄때의 API찾아서 날씨 찍어줄수있음
 function onGeoOk(position){
   var lat = position.coords.latitude;
   var lng = position.coords.longitude; 
   console.log("You live it", lat, lng);
-}
+},
 function onGeoError(){
   alert("Can't find you. No weather for you.");
-}
-navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError);
+},
+navigator.geolocation.getCurrentPosition(onGeoOk, onGeoError),
 
 //window이벤트
 function handleWindowResize(){
   document.body.style.backgrundColor = "tomato";
-}
+};
 //사이즈가 변경되었을때 발생
 window.addEventListener("resize", handleWindowResize);
 //wifi가 연결되었을때 발생
@@ -117,6 +126,8 @@ document.getElementById('IAWD_210316_0002').onreload();
 dewself.grid.setOptions({ editable: self.mcpCdCorp.length > 1 ? false : true})
 
 //CSS display
+$("#tabUpS_table1 .dews-ui-td-result .dews-dropdownlist-wrapper", self.$content).css("display", "none"); //평가결과 숨기기
+$("#btnDelete", dewself.$content).css("display", "none");
 if(data.length > 0){
   $("#itaots_num", self.$content).text(data.length);
 }else{
