@@ -1,5 +1,60 @@
+/*소계 footer 따로 설정할 경우 */
+//그리드셋팅에서 설정
+footer: {
+    callback: function(column){
+        var sum = 0;
+        $.each(self.grid.sortDataItems(), function (idx, item) {
+            sum += Number(item.GUBUN == '1' ? item[column.fieldName] : 0);
+        });
+        
+        return sum.format();
+    }
+}
+
+databound: function (e){
+    var sumIndexArr = [], sumStyle = { background: '#ffecdb', fontBold: true};
+    var resetIndexArr = [], resetStyle = { background: '#ffffff', fontBold: false};
+
+    $(e.grid.sortDataitems()).each(function (idx, item) {
+        if(item.GUBN == '2'){
+            sumIndexArr.push(idx);
+            e.grid.setDisableCheck(idx, true);
+        } else{
+            resetIndexArr.push(idx);
+            e.grid.setDisableCheck(idx, false);
+        }
+    });
+
+    e.grid.setRowStyle(sumIndexArr, sumStyle);
+    e.grid.setRowStyle(resetIndexArr, resetStyle);
+
+    dews.ui.loading.hide();
+    
+    if(e.row.data.length <= 0){
+        dews.ui.snackbar.info(gerp.MA.MSG.SEARCH_NO_DATA_ALERT);
+    }
+}
+
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
+if(self.ddl_gurae.value() != "1"){
+    $("#ddl_flag", self.$content).css("display", "none");
+  } else{
+    $("#ddl_flag", self.$content).css("display", "block");
+  }
+
+//CSS숨김처리
+<tr style="display:none;"> 
+                      <th class='left dews-ui-multilingual' >불참자</th>
+                      <td style="border-right: 1px solid #e1e1e1 !important;">
+                      	<select id="EMP_NO12" name="EMP_NO12" type="text" class="dews-ui-multicodepicker"  data-dews-code-field="EMP_NO" data-dews-text-field="KOR_NM" data-dews-help-code="H_HR_EMP_MST_S02" data-dews-help-size="big"  data-dews-help-title="사원 도움창"></select>
+                        </td> 
+                    </tr>
+
+//Object Type Sort
+var data2 = data.sort(function (a, b){
+       return a.CODE - b.CODE;
+     });
 
 //그리드 컬럼 너비 조절
 self.grid._grid.setColumnProperty("IN_HEADER","width", width_value); 
@@ -266,6 +321,8 @@ function CtrlReadOnly(Flag){
       self.tb_T_CHIEF.readonly(Flag);
       self.tb_T_Phone.readonly(Flag);
 }
+
+self.$ENT_OASMT_YN.prop('checked', data.ENT_OASMT_YN === 'Y' ? true : false);
 
 //폼패널 초기화
 function initClear(){

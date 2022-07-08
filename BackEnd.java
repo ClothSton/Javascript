@@ -1,3 +1,125 @@
+/*소계 백엔드에서 처리할때
+ * <!-- 월판매용품청구내역 미청구 조회 -->
+	<select id="selectMainList" resultType="com.douzone.comet.service.np.npslqr.z10075.models.Npslqr01120_MAIN_z10075">
+	WITH TEMP_INFO
+		AS
+		(
+SELECT  TAX.TAXBIL_NO				 <!-- 전자발행구분 -->
+		,TAX.PARTNER_CD				 <!-- 세금계산서번호 -->
+		,DECODE(TAX.ELTR_ISSUE_FG, '0','미발행','발행') AS ELTR_ISSUE_FG	<!-- 전자발행구분 -->
+		,CODE.SYSDEF_NM AS STATUS_FG <!-- 수신상태 -->
+		        ,TAX.START_DT 		 <!-- 시작일 -->
+		,PARTNER.PARTNER_NM			 <!-- 거래처명 -->
+		,PARTNER.CEO_NM 			 <!--대표자명 -->
+		,TAXD.ITEM_NM 				 <!--품목-->
+		,TAX.BIZR_NO 				 <!--사업자번호 -->
+		,PARTNER.BASE_ADDR 			 <!-- 주소 -->
+		,PARTNER.BIZC_NM 			 <!--업태-->
+		,PARTNER.BIZTP_NM 			 <!--업종-->
+		,CTR.CTR_NM 				 <!--센터명-->
+		,NVL(TAXD.SPPRC_AMT, 0) AS SPPRC_AMT 			 <!--매출액-->
+		,NVL(TAXD.TAX_AMT, 0) AS TAX_AMT 				 <!--부가세-->
+		FROM FI_TAX_MST TAX, FI_TAX_DTL_ITEM TAXD
+		 , CI_PARTNER_MST PARTNER, NP_CTR_MST CTR, NP_TEAMRESP_INFO TEAMRESP
+		 , (SELECT COMPANY_CD, SYSDEF_CD, SYSDEF_NM FROM MA_CODEDTL WHERE COMPANY_CD = #{P_COMPANY_CD} AND MODULE_CD ='FI' AND FIELD_CD ='S40180') CODE
+		WHERE TAX.COMPANY_CD = TAXD.COMPANY_CD(+) 
+		AND TAX.TAXBIL_NO = TAXD.TAXBIL_NO(+) 
+		AND TAX.PARTNER_CD = PARTNER.PARTNER_CD(+)
+		AND TAX.COMPANY_CD = CTR.COMPANY_CD(+) 
+		AND PARTNER.PARTNER_CD  = CTR.CUST_CD(+)
+		AND CTR.COMPANY_CD  = TEAMRESP.COMPANY_CD(+)
+		AND CTR.CHRG_EMP_NO = TEAMRESP.EMP_NO(+)
+		AND TAX.COMPANY_CD = CODE.COMPANY_CD(+)
+		AND TAX.ELTR_ISSUE_ST_CD = CODE.SYSDEF_CD(+) 
+		AND TAX.COMPANY_CD = #{P_COMPANY_CD}
+		<if test='P_KIND_FG == "1"'> 
+		AND CTR.TEAM_CD LIKE #{P_TEAM_CD} || '%'
+		AND CTR.PART_CD LIKE #{P_PART_CD} || '%'
+		AND TEAMRESP.EMP_NO LIKE #{P_EMP_NO}  || '%'
+		</if>
+		AND TAX.START_DT BETWEEN #{P_START_DT} AND #{P_END_DT}  --세금일자
+		<!-- <choose>
+		<when test='P_USERDEF1_CD != null and P_USERDEF1_CD == "7"'>
+		AND PARTNER.PARTNER_FG_CD = '3'
+		AND TAX.USERDEF1_CD IN('5', '6')
+		</when>
+		<otherwise>
+		AND TAX.USERDEF1_CD = #{P_USERDEF1_CD} 
+		</otherwise>
+		</choose> -->
+		<choose>
+		<when test='P_CHK == "1"'>
+		AND PARTNER.PARTNER_FG_CD = '3'
+		AND TAX.USERDEF1_CD IN('5', '6')
+		</when>
+		<otherwise>
+		AND TAX.USERDEF1_CD = #{P_USERDEF1_CD}
+		</otherwise>
+		</choose>
+		AND TAX.TAXAFS_CD LIKE #{P_TAXAFS_CD} || '%' -- 구분
+		<if test='P_ISSUE_ST_CD != null and P_ISSUE_ST_CD != ""'> 
+		AND CODE.SYSDEF_CD = #{P_ISSUE_ST_CD}	--상태
+		</if>
+		<if test='P_KIND_FG != null and P_KIND_FG != ""'>
+		AND CTR_KIND_FG = #{P_KIND_FG}	--거래선코드
+		</if>
+		ORDER BY TAX.START_DT, CTR.CTR_NM
+		)
+		SELECT '1' GUBUN
+			,  TAXBIL_NO
+			,  PARTNER_CD
+			,  ELTR_ISSUE_FG
+			,  STATUS_FG
+			,  START_DT
+			,  PARTNER_NM
+			,  CEO_NM
+			,  ITEM_NM
+			,  BIZR_NO
+			,  BASE_ADDR
+			,  BIZC_NM
+			,  BIZTP_NM
+			,  CTR_NM
+			,  SPPRC_AMT
+			,  TAX_AMT
+		FROM TEMP_INFO
+		UNION ALL
+		SELECT '2' GUBUN
+			,  NULL TAXBIL_NO
+			,  PARTNER_CD || CHR(10)	PARTNER_CD
+			,  NULL ELTR_ISSUE_FG
+			,  NULL STATUS_FG
+			,  NULL START_DT
+			,  PARTNER_NM || CHR(10)	PARTNER_NM
+			,  CEO_NM || CHR(10)		CEO_NM
+			,  NULL ITEM_NM
+			,  NULL BIZR_NO
+			,  NULL BASE_ADDR
+			,  NULL BIZC_NM
+			,  NULL BIZTP_NM
+			,  NULL CTR_NM
+			,  SUM(SPPRC_AMT)
+			,  SUM(TAX_AMT)
+		FROM TEMP_INFO
+		GROUP BY PARTNER_CD, PARTNER_NM, CEO_NM
+		ORDER BY PARTNER_NM, GUBUN
+	</select>
+ */
+
+/*JAVA API 파라미터 dataSource 형태 
+@DzApi(url = "/iriism00100_save_Cwide_plen_company", desc = "전사수준 설계평가 이슈처리 버튼", httpMethod = DzRequestMethod.POST)
+		public boolean iriism00100_save_Cwide_plen_company(
+				@DzParam(key="dataSource", desc="저장데이터", paramType=DzParamType.Body) List<Map<String, String>> dataSource
+				)throws Exception {
+			try {
+				
+					HashMap<String, Object> parameters = new HashMap<String, Object>();
+					for (Map<String, String> item : dataSource) {
+						parameters.clear();
+						parameters.put("P_EVAL_PRID_SQ", item.get("eval_prid_sq"));
+						parameters.put("P_CTRL_TSK_FG", item.get("ctrl_tsk_fg"));
+						parameters.put("P_CTRL_LV_CD", item.get("ctrl_lv_cd"));
+						*/
+
 //XML DB체크
 <choose>
 		    		<when test='DbProvider.equals("MARIADB")'>
@@ -21,9 +143,23 @@
  <if test='p_cpk_extennm != null and !"".equals(p_cpk_extennm)'>
 
 //IN절 사용?(xml)
-<foreach collection="P_AUPI_CD_PIPE" index="index" item="item" open="(" separator="," close=")">
-				#{item}
-			</foreach>
+/*.JAVA */
+parameters.put("P_PROC_PIPE", proc_pipe);
+parameters.put("P_PROC_LIST", Arrays.asList(proc_pipe.split("\\|")));
+
+/*MyBatis 
+<if test="@com.douzone.comet.service.util.mybatis.MyBatisUtil@isNotNullOrEmpty(P_ACCT_CD_PIPE)">
+	INNER JOIN (
+		   SELECT A.CTRL_ACTV_SQ
+		   FROM @{dzparam_dbname}IA_PRTSKLVCOAM_INFO A
+		WHERE A.COMPANY_CD = #{P_COMPANY_CD} AND A.EVAL_PRID_SQ = #{P_EVAL_PRID_SQ} AND A.MVOT_FG = '1' 
+		  AND A.ACCT_CD IN
+				 <foreach collection="P_ACCT_CD_LIST" index="index" item="item" open="(" separator="," close=")">
+					   #{item}
+				 </foreach>
+				  ) M
+				  ON CD.CTRL_LV_CD = '2' AND CD.CTRL_CLAS_SQ = M.CTRL_ACTV_SQ
+	</if>*/
 
 //날짜저장
 import com.douzone.comet.service.util.StringUtil;
