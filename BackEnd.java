@@ -1,3 +1,122 @@
+/*MAX값 따기 */
+// 쿼리 준비
+SqlPack so = new SqlPack();
+so.setStoreProcedure(false);
+so.setMapperType(MapperType.MyBatis);
+so.setSqlText(MyBatisUtil.getId(this.getClass(), "Itaots00200.list_it"));
+so.getInParameters().putAll(parameters);
+List<SingleObject> objs = this.queryForModel(so, SingleObject.class);
+
+Integer _maxidx = Integer.parseInt(objs.get(0).getScala().toString().replace(".0", ""));
+
+SingleObject ✨
+
+if (!udrmad00400_check_sysYn(parameters)) {
+				throw new DzApplicationRuntimeException(String.format("타 메뉴에서 사용 중인 경우 삭제가 불가능합니다."+"\n [%s] %s",item.getRval_cd(), item.getRval_nm()));
+            }
+			
+			
+private Boolean udrmad00400_check_sysYn(HashMap<String, Object> parameters)
+		throws Exception {
+			
+			Boolean result = true;
+						
+			List<SingleObject> list =  dao00400.check_sysYn(parameters);
+			
+			if (list.size() > 0) {
+				result = false;
+			}
+			
+			return result;
+		}
+		
+		
+public List<SingleObject> check_sysYn(Object object) throws Exception {
+		return this.mybatisSupport.selectList(this.getMyBatisName("Udrmad00400Card", "check_sysYn"), object);
+	}
+	
+	
+	
+<select id="check_sysYn" parameterType="hashmap" resultType="com.douzone.comet.service.util.data.models.SingleObject">
+	SELECT 1 SCALA
+	FROM 
+		@{dzparam_dbname}CO_RPTCOL_MST CRI
+	WHERE 
+		CRI.COMPANY_CD = #{P_COMPANY_CD}
+		AND CRI.TSK_FG_CD = #{P_TSK_FG_CD}
+		AND CRI.RVAL_CD = #{P_RVAL_CD}
+</select>
+
+
+/* 있으면 업데이트 없으면 인서트
+private void aemaed00100_insert5(Aemaed00100Edu item, String actg_yy, String emp_no) throws Exception {
+		try {
+			String line_sq = getMaxLineSq(actg_yy);
+			
+			String goalDt = "";
+			String closeDt = "";
+			
+			HashMap<String, Object> params = new HashMap<String, Object>();
+ 			params.put("P_EDU_TP_CD", item.getEdu_tp_cd());
+ 			params.put("P_EUCPART_CD", item.getEucpart_cd());
+ 			params.put("P_EDU_START_DT", StringUtil.getLocaleTimeString(item.getEdu_start_dt(), "yyyyMMdd"));
+ 			params.put("P_EDU_END_DT", StringUtil.getLocaleTimeString(item.getEdu_end_dt(), "yyyyMMdd"));
+ 			
+ 			String overlapId = MyBatisUtil.getId(this.getClass(), "Aemaed00100.select_overlap");
+ 			List<Map<String, Object>> list = mybatisSupport.selectList(overlapId, params);
+ 			
+ 			if(list.size() > 0) {
+ 				String mapperId = MyBatisUtil.getId(this.getClass(), "Aemaed00100.insert_view");			
+ 				mybatisSupport.update(mapperId, params);
+ 			} else {
+ 				String mapperId = MyBatisUtil.getId(this.getClass(), "Aemaed00100.update");			
+ 				mybatisSupport.update(mapperId, params);
+ 			}
+			
+		} catch (DzApplicationRuntimeException e) {
+ 			throw e;
+
+ 		} catch (Exception e) {
+ 			throw e;
+ 		}
+	} 
+*/
+
+/*
+   AEM.DEPT_CD           			--   부서코드         
+ , MDM.DEPT_NM           			--   부서명           
+ , AEM.EMP_NO            			--   사원번호         
+ , HEM.KOR_NM            			--   사원명            
+
+--부서 사원 이름 매핑
+LEFT JOIN	HR_EMP_MST HEM
+ON 1=1 AND AEM.COMPANY_CD = HEM.COMPANY_CD AND AEM.EMP_NO     = HEM.EMP_NO
+LEFT JOIN	
+(
+ SELECT 
+	 B.DEPT_CD, B.DEPT_NM, B.DEPT_START_DT
+ FROM 
+ (
+	  SELECT MAX(DEPT_START_DT) DEPT_START_DT, DEPT_CD 
+	  FROM MA_DEPT_MST
+	  WHERE COMPANY_CD = #{P_COMPANY_CD}		
+	  GROUP BY DEPT_CD
+ ) A
+ INNER JOIN MA_DEPT_MST B 
+	 ON 		B.DEPT_CD       = A.DEPT_CD
+		AND B.DEPT_START_DT = A.DEPT_START_DT 
+		AND B.COMPANY_CD    = #{P_COMPANY_CD}
+) MDM
+ON 1=1 AND MDM.DEPT_CD = AEM.DEPT_CD
+LEFT OUTER JOIN MA_DEPT_LDTL MDL 
+  ON MDL.COMPANY_CD    	  = #{P_COMPANY_CD}
+	AND MDL.DEPT_CD       = MDM.DEPT_CD
+	AND MDL.DEPT_START_DT = MDM.DEPT_START_DT
+	AND MDL.LANG_CD       = #{P_LANG_CD}		        
+WHERE 1 = 1
+ */
+
+
 /*소계 백엔드에서 처리할때
  * <!-- 월판매용품청구내역 미청구 조회 -->
 	<select id="selectMainList" resultType="com.douzone.comet.service.np.npslqr.z10075.models.Npslqr01120_MAIN_z10075">

@@ -1,4 +1,37 @@
-/*소계 footer 따로 설정할 경우 */
+//추가한 html 삭제하기
+$("#content_ITAOTS00200 tr").remove(".active_table");
+
+//메뉴 로그 찍기
+$(document).keydown(function (e) {
+    if (e.altKey && e.ctrlKey && e.shiftKey && e.keyCode == '220') {
+      dews.api.post(dews.url.getApiUrl("IA", "ICFRSetTestEnvironmentTTSService", "isttts00400_prtsklv_log"), {
+        async: false,
+        data: {
+          press_werning: press_werning,
+          scop_prid_sq: Scop_prid_sq
+        }
+      })
+        .done(function (data) {
+          var initData = { data: data}
+          var dialog = dews.ui.dialog("ISTTTS00400_POP1", {
+            url: "/view/IA/ISTTTS00400_POP1",
+            title: "쿼리확인",
+            width: 800,
+            height: 600,
+            initData: initData,
+            ok: function (data){
+
+            }
+          });
+          dialog.open();
+        })
+        .fail(function (xhr, satus, error) {
+          dews.error(error);
+        });
+    }
+  });
+
+/*소계 footer 따로 설정할 경우 시작 -------------------------------------------------------------------------*/
 //그리드셋팅에서 설정
 footer: {
     callback: function(column){
@@ -34,6 +67,7 @@ databound: function (e){
         dews.ui.snackbar.info(gerp.MA.MSG.SEARCH_NO_DATA_ALERT);
     }
 }
+/*소계 footer 따로 설정할 경우 끝 -------------------------------------------------------------------------*/
 
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
@@ -43,13 +77,14 @@ if(self.ddl_gurae.value() != "1"){
     $("#ddl_flag", self.$content).css("display", "block");
   }
 
-//CSS숨김처리
+//CSS숨김처리 시작-----------------------------------------------------------------------------------------
 <tr style="display:none;"> 
                       <th class='left dews-ui-multilingual' >불참자</th>
                       <td style="border-right: 1px solid #e1e1e1 !important;">
                       	<select id="EMP_NO12" name="EMP_NO12" type="text" class="dews-ui-multicodepicker"  data-dews-code-field="EMP_NO" data-dews-text-field="KOR_NM" data-dews-help-code="H_HR_EMP_MST_S02" data-dews-help-size="big"  data-dews-help-title="사원 도움창"></select>
                         </td> 
                     </tr>
+//CSS숨김처리 끝-----------------------------------------------------------------------------------------
 
 //Object Type Sort
 var data2 = data.sort(function (a, b){
@@ -339,12 +374,14 @@ function initClear(){
 }
 //버튼 비활성화 활성화
 if(self.dataSource1.data().length > 0){
+    //활성화
     self.$bt_ADD.removeClass("k-state-disabled");
     self.$bt_DEL.removeClass("k-state-disabled");
     self.$bt_ADD.prop("disabled", false);
     self.$bt_DEL.prop("disabled", false);
     CtrlReadOnly(false);
   } else{
+    //비활성화
     dews.ui.snackbar.info(gerp.MA.MSG.SEARCH_NO_DATA_ALERT);
     self.$bt_ADD.addClass("k-state-disabled");
     self.$bt_DEL.addClass("k-state-disabled");
@@ -452,8 +489,6 @@ $.when(
       self.grd_main.setCellValue(grdindex, "READ_FG", self.ds_paytype.data()[index].SYSDEF_NM)
     }
   });
-
-
 
   //view/js/damg.js
 (function (dews, gerp, $) {
