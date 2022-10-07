@@ -1,3 +1,8 @@
+//추가한 컨트롤 숨기기
+$("컨트롤네임", self.$content).hide();
+//추가한 컨트롤 보여주기
+$("컨트롤네임", self.$content).hide();
+
 //추가한 html 삭제하기
 $("#content_ITAOTS00200 tr").remove(".active_table");
 
