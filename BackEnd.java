@@ -370,4 +370,56 @@ StringUtil.getLocaleTimeString(item.getStart_ym(), "yyyyMM");
 		AND NVL(a.CALC_USE_YM, '100001') = #{P_MONTH}
 	</when>
 </choose>	
-	/* */
+/*JAVA
+원하는 출력	입력
+
+\		\\
+'		\'
+"		\"
+
+*/
+/*MyBatis
+
+gt(>), lt(<), gte(>=), lte(<=)
+
+&gte;
+
+&gt;
+
+TO_CHAR(SYSDATE, 'YYYYMMDD') &gte; >= TO_CHAR(
+
+<![CDATA[>=]]>  */ 
+
+/*
+JAVASCRIPT
+1월 January 	 (Jan)
+2월 February 	 (Feb)
+3월 March    	 (Mar)
+4월 April       	 (Apr)
+5월 May       	 (May)
+6월 June      	 (Jun)
+7월 July        	 (Jul)
+8월 August    	 (Aug)
+9월 September  (Sep)
+10월 October 	 (Oct)
+11월 November  (Nov)
+12월 December (Dec)
+
+setFullYear: 연도를 설정한다.
+setMonth:(0 ~ 11) 월 [ 여기서 1월은 0이고 12월은 11이다 ]을 설정한다.
+setDate: (0 ~ 31). 날짜 [0을 설정한 경우 이전 달의 가장 마지막 날을 설정한다.]를 설정한다. 
+setHours: (0 ~ 23). 시간을 설정한다.
+setMinutes: (0 ~ 59). 분을 설정한다.
+setSeconds: (0 ~ 59). 초를 설정한다.
+setMilliseconds: (0 ~ 999). 밀리 초를 설정한다.
+
+
+getFullYear: 연도를 반환한다.
+getMonth:(0 ~ 11) 월 [ 여기서 1월은 0이고 12월은 11이다 ]을 반환한다.
+getDate: (1 ~ 31). 날짜를 반환한다.
+getHours: (0 ~ 23). 시간을 반환한다.
+getMinutes: (0 ~ 59). 분을 반환한다.
+getSeconds: (0 ~ 59). 초를 반환한다.
+getMilliseconds: (0 ~ 999). 밀리 초를 반환한다.
+
+*/

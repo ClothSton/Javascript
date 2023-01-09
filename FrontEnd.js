@@ -1,3 +1,54 @@
+//메세지박스안에 메세지박스를 넣는 방법 (mainbuttons.delete.click 를 예로들면)
+//최상단에 
+dews.ui.mainbuttons.delete.useDefaultConfirm = false;
+
+dews.ui.mainbuttons.delete.click(/*7b6b352c-c2a0-4fca-a8a6-d828f913c9f4*/ function() {
+    var confirm = dews.confirm(gerp.MA.MSG.DELETE_CONFIRM, "ico2")
+        .yes(function () {
+          confirm.dialog.dialog.bind('deactivate', function () {
+            deleteData();
+          })
+        })
+        .no(function () {
+          return false;
+        })
+  });
+
+  function deleteData() {
+    if (self.grid1.dataItems().length > 0) {
+      if (self.grid1.dataItems(self.grid1.select()).MAGAM_YN == "Y") {
+        dews.alert("마감된 데이터는 삭제할 수 없습니다.", "error");
+      } else {
+        self.grid1.removeRow(self.grid1.select());
+      }
+    }
+  }
+
+/*html 방식 : < id='box' style='color: red;'>
+JavaScript 방식 : box.style.color = 'red';
+
+숫자단위표기법
+-----------------------------------------
+<script>
+    // 방법1
+    test.style.width = '400px';
+    test.style.height = '400px';
+    test.style.backgorundColor ='blue';
+    
+    // 방법2
+    test.style['width'] = '400px';
+    test.style['background-color'] = 'blue';
+</script>
+
+문자열로된 속성값 조작
+----------------------------------------
+<script>
+    // 1. 문자열로 변한 속성값을 parseInt로 숫자형으로 변경한다.
+    // 2. 숫자형으로 변하여 단위가 사라졌으므로 문자열 단위를 붙여준다.
+    test.style.width = parseInt(test.style.width) * 2 + 'px';
+</script>
+*/
+
 //추가한 컨트롤 숨기기
 $("컨트롤네임", self.$content).hide();
 //추가한 컨트롤 보여주기
@@ -400,6 +451,7 @@ self.P_Drop_Move_Fg.on('change', /*b450102b-79bd-48b0-bef1-9a59e1c06f22*/ functi
       if(self.P_Drop_Move_Fg.value() != "")
       {
        self.P_Drop_Item.enable(true);
+       
        dews.api.get(dews.url.getApiUrl('NP', 'Nprdqr00490Service_z10075', 'nprdqr00490_code_list' ), {
           async: false,
           data:{
