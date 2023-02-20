@@ -1,3 +1,17 @@
+//동적페이지
+<div class="notice-list-area">
+</div>
+
+<script>
+    var $listArea = $('.notice-list-area', $container);
+
+    $listArea.empty();
+        $detailArea.empty();
+        $('#pager', $container).hide();
+        $listArea.append('<div class="list-empty-text"><div class="ico-empty-list"></div>' + dews.localize.get('등록된 게시글이 없습니다.', 'notice-empty-list') + '</div>');
+        $detailArea.append('<div class="no-select-detail"><div class="img-no-select-detail"></div>' + dews.localize.get('선택된 목록이 없습니다.', 'notice-no-selected') + '</div>');
+</script>
+
 //메세지박스안에 메세지박스를 넣는 방법 (mainbuttons.delete.click 를 예로들면)
 //최상단에 
 dews.ui.mainbuttons.delete.useDefaultConfirm = false;
@@ -52,7 +66,7 @@ JavaScript 방식 : box.style.color = 'red';
 //추가한 컨트롤 숨기기
 $("컨트롤네임", self.$content).hide();
 //추가한 컨트롤 보여주기
-$("컨트롤네임", self.$content).hide();
+$("컨트롤네임", self.$content).show();
 
 //추가한 html 삭제하기
 $("#content_ITAOTS00200 tr").remove(".active_table");
@@ -200,7 +214,7 @@ dews.ui.grid(self.$grid_mst, {
   selectable: true,
   copyMode: 'cell',
   columns: [
-{
+  {
   field: 'ISSUE_ID',
   title: '발행자ID',
   width: 60,
@@ -226,7 +240,7 @@ dews.ui.grid(self.$grid_mst, {
       };
     }
   }
-}
+  }
   ]
 },
 
@@ -445,6 +459,16 @@ if(self.dataSource1.data().length > 0){
     self.$bt_DEL.prop("disabled", true);
     CtrlReadOnly(true);
   }
+
+  //버튼 숨기기 보이기
+if(self.ddl_gubn.value() == '1'){
+   self.detail_gubn.setDataSource(ar_A00432);
+   $("#chkmain", self.$content).css("display", "none");
+   self.chk.check(false);
+} else if(self.ddl_gubn.value() == '2'){
+   self.detail_gubn.setDataSource(ar_A00433);
+   $("#chkmain", self.$content).css("display", "block");
+}
 
 //드롭다운리스트값에 따라 드롭다운리스트 재매핑
 self.P_Drop_Move_Fg.on('change', /*b450102b-79bd-48b0-bef1-9a59e1c06f22*/ function(e) {

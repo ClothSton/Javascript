@@ -1,0 +1,50 @@
+DB Link 란?
+- 말그대로 다른 데이터베이스에 접속할 수 있는 링크를 말한다. 
+
+- DML문에서 "FROM 테이블명@DB링크" 형식으로 사용하여, 다른 DB에 쿼리를 날릴 수 있다.
+
+- 다른 DB에 특정 유저에 대한 링크를 만들어 해당 스키마에 테이블들을 접근하는 기술이다.
+
+ 
+
+접근제한자
+접근제한자(PUBLIC / PRIVATE)가 존재한다 
+
+- PUBLIC   모든 유저가 사용가능한 공용링크를 만들때 지정한다.
+
+- PRIVATE 특정 유저만 사용가능 한 DB링크를 만들때 지정한다. 
+
+ 
+
+DB 링크의 필요성
+제한된 환경에서 확장이 필요할때, 다른 서버의 DB를 링크를 통해 접속하게 해주므로 확장성을 가진다.
+ 
+
+DB 링크 CRUD문
+조회
+
+SELECT * FROM DBA_DB_LINKS
+생성 
+
+TNS에 해당 DB가 서로 명시되어있어야하며, 통신을 위해 각각 서버에 1521 포트개방은 필수입니다.
+
+CREATE  DATABASE LINK [링크로 사용할 명칭] 
+CONNECT TO [원격지 로그인 유저명] 
+IDENTIFIED BY "[원격지 유저 패스워드]" 
+USING [로컬서버의 tnsnames.ora에 설정된 접속할 매칭이름]
+삭제
+
+DROP DATABASE LINK 링크명;
+
+DROP PUBLIC DATABASE LINK 링크명;
+ 
+
+시노님과 마찬가지로 PUBLIC 삭제시는 위와같이 명시해주셔야 합니다.
+
+ 
+
+ 
+
+링크 사용문
+
+SELECT * FORM 테이블명@링크명;
