@@ -1,3 +1,149 @@
+/*Logger 사용 */
+package com.somebiz.restapp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// other imports
+
+@Restcontroller
+public class 
+
+/*
+ * 루프성쿼리
+ * 
+ * 추가) 아래 SELECT 절만 변경해서 사용하시면 됩니다. 
+
+SELECT
+        KEY_ACCT_CD, ACCT_CD, UP_ACCT_CD, MIN(ACCT_LIST) ACCT_LIST, MIN(CNT) CNT
+    FROM T_ACCT_LIST
+    WHERE IS_DUPLE = 'Y'
+        AND ACCT_LIST LIKE CONCAT(KEY_ACCT_CD, '%')
+        AND ACCT_LIST LIKE CONCAT('%', KEY_ACCT_CD)
+ GROUP BY KEY_ACCT_CD, ACCT_CD, UP_ACCT_CD
+
+KEY_ACCT_CD  : 문제있는 계정코드
+ACCT_LIST  : 처음과 끝이 중복
+CNT : 레벨 (몇단계에서 중복인지)
+
+-----------------------
+
+루프쿼리 공유해드립니다.
+
+테이블 : IA_COA_MNG
+회사코드 : 9700
+루프성 체크  :  10 까지 검증
+      ex) 2로 체크하면 acct_cd = up_acct_cd
+마리아 db인 경우 RECURSIVE
+
+WITH
+    /*RECURSIVE*/
+    M_ACCT AS
+    (
+        SELECT
+            ACCT_CD, UP_ACCT_CD, CONCAT(CONCAT('|', ACCT_CD), '|') ACCT_LIST
+        FROM IA_COA_MNG
+        WHERE COMPANY_CD = '9700'
+            AND UP_ACCT_CD IS NOT NULL            
+    ),
+    T_ACCT_LIST(ACCT_CD, UP_ACCT_CD, ACCT_LIST, CNT, IS_DUPLE, KEY_ACCT_CD) AS
+    (
+        SELECT
+            ACCT_CD, UP_ACCT_CD, ACCT_LIST,
+            1 CNT, 'N' IS_DUPLE, '|' KEY_ACCT_CD
+        FROM M_ACCT
+
+        UNION ALL
+
+        SELECT
+            MA.ACCT_CD, MA.UP_ACCT_CD, CONCAT(TA.ACCT_LIST, MA.ACCT_LIST) ACCT_LIST,
+            TA.CNT + 1 CNT,
+            CASE WHEN TA.IS_DUPLE = 'Y' THEN 'Y'
+                     WHEN LENGTH(TA.ACCT_LIST) - LENGTH(REPLACE(TA.ACCT_LIST, MA.ACCT_LIST, ' ')) !=  0 THEN 'Y'
+                     ELSE 'N' END IS_DUPLE,
+            CASE WHEN TA.IS_DUPLE = 'Y' THEN TA.KEY_ACCT_CD
+                     WHEN LENGTH(TA.ACCT_LIST) - LENGTH(REPLACE(TA.ACCT_LIST, MA.ACCT_LIST, ' ')) !=  0 THEN CONCAT(TA.KEY_ACCT_CD, CONCAT(MA.ACCT_CD, '|'))
+                     ELSE TA.KEY_ACCT_CD END KEY_ACCT_CD                    
+        FROM M_ACCT MA, T_ACCT_LIST TA
+        WHERE MA.UP_ACCT_CD = TA.ACCT_CD
+            AND TA.CNT < 10
+    )
+    SELECT
+        DISTINCT KEY_ACCT_CD
+    FROM T_ACCT_LIST
+    WHERE IS_DUPLE = 'Y'
+    /*
+    SELECT
+        MA.*
+    FROM M_ACCT MA
+    INNER JOIN (
+        SELECT
+            DISTINCT KEY_ACCT_CD
+        FROM T_ACCT_LIST
+        WHERE IS_DUPLE = 'Y'
+    )  TD
+        ON MA.ACCT_CD = REPLACE(KEY_ACCT_CD, '|', '') OR MA.UP_ACCT_CD = REPLACE(KEY_ACCT_CD, '|', '')
+    */
+
+/*BackEnd Tree구조 
+// 쿼리 준비
+SqlPack so = new SqlPack();
+so.setStoreProcedure(false);
+so.setMapperType(MapperType.MyBatis);
+so.setSqlText(MyBatisUtil.getId(this.getClass(), "Ibsobs00400Tab5.list"));
+so.getInParameters().putAll(parameters);
+items = this.queryForModel(so, Ibsobs00400Tab5Tree.class);
+
+Ibsobs00400Tab5Tree FirstNode = new Ibsobs00400Tab5Tree();
+FirstNode.setLv_cd("0");
+FirstNode.setCode_cd("0"); // top -> 0
+FirstNode.setCode_nm("업무수준CM");
+FirstNode.setCssclass("folder");
+FirstNode.setStatus("none");
+
+Integer lvl = _lv1_use_yn.equals("Y") ? 1 : 2;
+
+// 1레벨
+List<Ibsobs00400Tab5Tree> list = items.stream().filter(p -> p.getLv_cd().equals(lvl.toString()))
+		.sorted(Comparator.comparing(p -> p.getDisp_sq())).collect(Collectors.toList());
+
+// (레벨 + 상위코드)별 map
+Map<String, List<Ibsobs00400Tab5Tree>> mapChild = items.stream()
+		.filter(p -> !(p.getLv_cd().equals(lvl.toString())))
+		.sorted(Comparator.comparing(p -> p.getDisp_sq()))
+		.collect(Collectors.groupingBy(p -> (p.getLv_cd() + "LV_" + p.getUp_code_cd())));
+
+FirstNode.setChild(list);
+
+for (int i = 0; i < list.size(); i++) {
+	ibsobs00400Tab5_list_tree_step(mapChild, list.get(i), lvl + 1, _lv4_use_yn);
+}
+
+TreeNode.add(FirstNode);
+
+//
+private void ibsobs00400Tab5_list_tree_step(Map<String, List<Ibsobs00400Tab5Tree>> mapChilds,
+			Ibsobs00400Tab5Tree ParentNode, Integer lvl, String _lv4_use_yn) throws Exception {
+		try {
+			if (_lv4_use_yn.equals("N") && lvl == 4) {
+				lvl++;
+			}
+
+			if (mapChilds.containsKey(lvl.toString() + "LV_" + ParentNode.getSeq_cd().toString())) {
+				List<Ibsobs00400Tab5Tree> Node = mapChilds
+						.get(lvl.toString() + "LV_" + ParentNode.getSeq_cd().toString());
+				ParentNode.setChild(Node);
+				for (int i = 0; i < Node.size(); i++) {
+					ibsobs00400Tab5_list_tree_step(mapChilds, Node.get(i), lvl + 1, _lv4_use_yn);
+				}
+			}
+		} catch (DzApplicationRuntimeException e) {
+			throw e;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+*/
+
 /*MAX값 따기 */
 // 쿼리 준비
 SqlPack so = new SqlPack();

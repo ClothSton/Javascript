@@ -1,0 +1,520 @@
+﻿<!--
+  DEWS UI/UX IDE - Build Result - v1.5
+  # PageID: BEGEXC00100HOLIDAY_POP
+  # PageTitle: 휴일관리
+  # Server: http://localhost:8080/
+-->
+
+<div class="dews-ui-container-panel" style="overflow: visible;">
+  <div class="dews-container-item" data-dews-position="normal">
+    <div>
+      <div class="dews-dialog-contents-area">
+        <!-- 화면영역 -->
+        <div class="dews-ui-condition-panel">
+          <form class="dews-condition-panel-form">
+            <ul>
+              <li>
+                <label class="dews-ui-multilingual" data-dews-localize-key="D0001464">조회기간</label>
+                <span>
+                  <span class="dews-ui-periodpicker required" id="s_yyyymmdd"></span>
+                </span>
+              </li>
+            </ul>
+          </form>
+        </div>
+        <div class='dews-button-group'>
+          <button id="btnSearch" class="dews-ui-button" data-dews-localize-key="D0000509">조회</button>
+          <button id='btnAdded' type='button' class='dews-ui-button' data-dews-localize-key="D0000242">추가</button>
+          <button id='btnDeleted' type='button' class='dews-ui-button' data-dews-localize-key="D0000256">삭제</button>
+          <button id="btnSave" class="dews-ui-button" data-dews-localize-key="D0000388">저장</button>
+          <button id="btnAutoAdd" class="dews-ui-button" data-dews-localize-key="D0002428">자동생성</button>
+        </div>
+        <div class="dews-container-panel" data-dews-container-height="200" style="min-width:0px!important;width:400!important;">
+          <div class="dews-container-item">
+            <div class="dews-ui-grid" id="grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="dews-dialog-button-group bottom" style="text-align: center;">
+  <button id="btnCancel" type="button" class="dews-ui-button" data-dews-localize-key="D0000255">닫기</button>
+</div>
+
+<style>
+
+</style>
+
+
+<script>
+  dews.ready(function () {
+    var self = this;
+
+    /*fb9d70bf-5be6-4f3a-a035-ab637cdc8a06*/
+    var thisDialog = dews.ui.dialog(self.$content.prop("id"));
+    var initData = thisDialog.initData;
+    var grid, dataSourceYN, dataSourceCLND_TP, dataSourceCLND_FG_CD, dataSourceWDAY, dataSourceWRT_TP
+
+    //조회기간초기값 Default : 시작 : 현재일 / 종료 현재일 + 3개월
+    var now = new Date();
+    self.s_yyyymmdd.setStartDate(now, 'yyyyMMdd');
+    self.s_yyyymmdd.setEndDate(dews.date.format(new Date(now.setMonth(now.getMonth() + 3)), 'yyyyMMdd'));
+
+    $.when(
+      dews.ajax.script('~/view/js/MA/ma.cm.js', { once: true, async: false })
+    )
+
+    dataSourceYN = [
+      { SYSDEF_CD: "Y", SYSDEF_NM: "Yes" },
+      { SYSDEF_CD: "N", SYSDEF_NM: "No" }
+    ];
+
+    dews.api.get(dews.url.getApiUrl('CM', 'CommonCodeDtlService', 'common_codeDtl_list'), {
+      async: false,
+      data: {
+        end_dt: '',
+        foreign_yn: '',
+        field_cd_pipe: 'P00810|P00240',
+        module_cd: 'MA',
+        syscode_yn: '',
+        keyword: '',
+        base_yn: ''
+      }
+    }).done(function (data) {
+      var MA_00810 = new Array();
+      var MA_00240 = new Array();
+
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].FIELD_CD == "P00810") {
+          MA_00810.push(data[i]);
+        }
+        else if (data[i].FIELD_CD == "P00240") {
+          MA_00240.push(data[i]);
+        }
+      }
+      self.dtMA_P00810 = dews.ui.dataSource('dtMA_P00810', { data: MA_00810 });
+      self.dtMA_P00240 = dews.ui.dataSource('dtMA_P00240', { data: MA_00240 });
+    });
+
+    dews.api.get(dews.url.getApiUrl('CM', 'CommonCodeDtlService', 'common_codeDtl_list'), {
+      async: false,
+      data: {
+        end_dt: '',
+        foreign_yn: '',
+        field_cd_pipe: 'P00070',
+        module_cd: 'HR',
+        syscode_yn: '',
+        keyword: '',
+        base_yn: ''
+      }
+    }).done(function (data) {
+      var HR_00070 = new Array();
+
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].FIELD_CD == "P00070" && (data[i].SYSDEF_CD == "1" || data[i].SYSDEF_CD == "2" || data[i].SYSDEF_CD == "3" || data[i].SYSDEF_CD == "7")) {
+          HR_00070.push(data[i]);
+        }
+      }
+      self.dtHR_P00070 = dews.ui.dataSource('dtHR_P00070', { data: HR_00070 });
+    });
+
+    dews.api.get(dews.url.getApiUrl('CM', 'CommonCodeDtlService', 'common_codeDtl_list'), {
+      async: false,
+      data: {
+        end_dt: '',
+        foreign_yn: '',
+        field_cd_pipe: 'P20480',
+        module_cd: 'CA',
+        syscode_yn: '',
+        keyword: '',
+        base_yn: ''
+      }
+    }).done(function (data) {
+      var CA_20480 = new Array();
+
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].FIELD_CD == "P20480") {
+          CA_20480.push(data[i]);
+        }
+      }
+      self.dtCA_P20480 = dews.ui.dataSource('dtCA_P20480', { data: CA_20480 });
+    });
+
+    gridYnSource = dews.ui.dataSource('gridYnSource', {
+      data: dataSourceYN
+    });
+
+    self.dataSource = dews.ui.dataSource('dataSource',{
+      grid: true,
+      transport: {
+        read: {
+          url: dews.url.getApiUrl('CA', "FoundationWorkEXCSERVICE", "begexc00100_listHoliday"),
+          data: function () {
+            return {
+              start_dt: self.s_yyyymmdd.getStartDate(),
+              end_dt: self.s_yyyymmdd.getEndDate()
+            }
+          }
+        }
+      },
+      schema: {
+        model: {
+          id: 'id',
+          fields: [
+            { field: "WRT_TP" },
+            { field: "CLND_TP" },
+            { field: "WDAY_DNLGB_CD" },
+            { field: "BWRK_DT" },
+            { field: "CLND_FG_CD" },
+            { field: "RMK_DC" },
+            { field: "USE_YN" },
+            { field: "USER_NM" },
+            { field: "UPDATE_DTS" }
+          ]
+        }
+      }
+    });
+
+    grid = dews.ui.grid(self.$grid,{
+      dataSource : self.dataSource,
+      checkable: true,
+      rowNo: true,
+      selectable: true,
+      editable: true,
+      height:358,
+      columns:[
+        {
+          field: "WRT_TP",
+          title: dews.localize.get("생성구분", 'D0027273', '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 80,
+          attributes:{
+            class:"required"
+          },
+          editor: {
+            type: 'dropDown',
+            dataSource: self.dtCA_P20480,
+            dataValueField: "SYSDEF_CD",
+            dataTextField: "SYSDEF_NM"
+          },
+          // editable: function (e){
+          //   if(grid.getRowState(e.row.index) == 'added'){
+          //     return true;
+          //   } else{
+          //     return false;
+          //   }
+          // }
+          editable: false
+        },
+        {
+          field:"CLND_TP",
+          visible: false,
+          title: dews.localize.get("카렌다유형", 'D0011058', '', 'BEGEXC00100HOLIDAY_POP'),
+          editor: {
+            type: 'dropDown',
+            dataSource: self.dtMA_P00810,
+            dataValueField: "SYSDEF_CD",
+            dataTextField: "SYSDEF_NM"
+          },
+          editable: function (e){
+            if(grid.getRowState(e.row.index) == 'added'){
+              return true;
+            } else{
+              return false;
+            }
+          }
+        },
+        {
+          field: "WDAY_DNLGB_CD",
+          title: dews.localize.get("요일구분", 'D0115178', '', 'BEGEXC00100HOLIDAY_POP'),
+          attributes:{
+            class:"required"
+          },
+          width: 80,
+          editor:{
+            type:"dropDown",
+            dataSource: self.dtHR_P00070,
+            dataValueField: "SYSDEF_CD",
+            dataTextField: "SYSDEF_NM"
+          },
+          editable: function (e){
+            if(grid.getRowState(e.row.index) == 'added'){
+              return true;
+            } else{
+              return false;
+            }
+          }
+        },
+        {
+          field: "BWRK_DT",
+          title: dews.localize.get("일자", 'D0003291', '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 90,
+          align: "center",
+          attributes: {
+            class: "required"
+          },
+          editor: {
+            type: "date",
+            predefined: true,
+            format: "MA00007",
+            editable: function (e) {
+              if (grid.getRowState(e.row.index) == 'added') {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
+        },
+        {
+          field:"CLND_FG_CD",
+          title: dews.localize.get("양력구분", 'D0115179', '', 'BEGEXC00100HOLIDAY_POP'),
+          align:"center",
+          visible: false,
+          editor: {
+            type: "dropDown",
+            dataSource: self.dtMA_P00240,
+            dataValueField: "SYSDEF_CD",
+            dataTextField: "SYSDEF_NM"
+          },
+          editable: function (e){
+            if(grid.getRowState(e.row.index) == 'added'){
+              return true;
+            } else{
+              return false;
+            }
+          }
+        },
+        {
+          field: "RMK_DC",
+          title: dews.localize.get("비고내역", 'D0007152', '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 260,
+          align: 'left',
+          editor: {
+            maxLength: 200
+          },
+          // editable: function (e){
+          //   if(grid.getRowState(e.row.index) == 'added'){
+          //     return true;
+          //   } else{
+          //     return false;
+          //   }
+          // }
+        },
+        {
+          field: "USE_YN",
+          title: dews.localize.get("사용여부", 'D0000011', '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 80,
+          editor: {
+            maxLength: 1,
+            type:"dropDown",
+            dataSource: gridYnSource,
+            dataValueField: "SYSDEF_CD",
+            dataTextField: "SYSDEF_NM"
+          },
+          // editable: function (e){
+          //   if(grid.getRowState(e.row.index) == 'added'){
+          //     return true;
+          //   } else{
+          //     return false;
+          //   }
+          // }
+        },
+        {
+          field: "USER_NM",
+          title: dews.localize.get("수정자", "D0000194", '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 70,
+          align: "center",
+          editable: function (e){
+            if(grid.getRowState(e.row.index) == 'added'){
+              return true;
+            } else{
+              return false;
+            }
+          }
+        },
+        {
+          field: "UPDATE_DTS",
+          title: dews.localize.get("수정일", "D0000225", '', 'BEGEXC00100HOLIDAY_POP'),
+          width: 80,
+          formats: {
+            type: 'date',
+            format: 'yyyy-MM-dd'
+          },
+          editable: function (e){
+            if(grid.getRowState(e.row.index) == 'added'){
+              return true;
+            } else{
+              return false;
+            }
+          }
+        }
+      ],
+      fixed: {
+        colCount: 0,
+        rightColCount: 0
+      },
+      dataBound: function (e) {
+        if(e.row.data.length <= 0){
+          dews.ui.snackbar.info(gerp.MA.MSG.SEARCH_NO_DATA_ALERT);
+        }
+
+        dews.ui.loading.hide();
+      },
+    });
+
+    //저장
+    self.$btnSave.on("click", function (e) {
+      self.grid.commitCell();
+      if (!self.grid.validate().result) {
+        // dews.alert(dews.localize.get("필수 항목들을 추가해 주세요.", 'M0000010', '', 'BEGEXC00100HOLIDAY_POP'));
+        dews.alert(gerp.MA.MSG.SAVE_VALID_ALERT, 'warning');
+        return false;
+      }
+      var ret = verify();
+      if (!ret) {
+        if (self.dataSource.getDirtyDataCount() > 0) {
+          dews.api.post(dews.url.getApiUrl("CA", "FoundationWorkEXCSERVICE", "begexc00100_holiday_save"), {
+            data: {
+              items: JSON.stringify(self.dataSource.getDirtyData())
+            }
+          }).done(function (data) {
+            dews.ui.loading.hide();
+            setTimeout(function () {
+              dews.alert(gerp.MA.MSG.SAVE_DONE_ALERT).done(function () {
+                self.dataSource.read();
+              });
+            }, 200);
+          }).fail(function (message) {
+            dews.error(message);
+          });
+        }
+        else {
+          dews.ui.snackbar.info(gerp.MA.MSG.SAVE_NO_DATA_ALERT);
+        }
+      } else {
+        dews.alert(ret.msg, "ico3");
+        self.grid.select(ret.idx);
+      }
+    });
+
+    //추가
+    self.$btnAdded.on("click",function(e){
+      self.grid.addRow();
+      self.grid.setCellValue(self.grid.select(), "CLND_TP", "1", false);
+      self.grid.setCellValue(self.grid.select(), "WRT_TP", "1", false);
+      self.grid.setCellValue(self.grid.select(), "CLND_FG_CD", "1", false);
+      self.grid.setCellValue(self.grid.select(), "USE_YN", "Y", false);
+      self.grid.setCellValue(self.grid.select(), "USER_NM", dews.ui.page.user.username, false);
+      self.grid.setCellValue(self.grid.select(), "UPDATE_DTS", dews.date.format(new Date(), 'yyyyMMdd'), false);
+    });
+
+    //삭제
+    self.$btnDeleted.on("click", function (e) {
+      dews.confirm(gerp.MA.MSG.DELETE_CONFIRM, 'question').yes(function () {
+        self.grid.removeRow(self.grid.getCheckedIndex());
+      })
+        .no(function () {
+          e.preventDefault();
+        }).promise();
+    });
+
+    self.$btnSearch.on('click', function (e) {
+      if (IsChanged()) {
+        dews.confirm(gerp.MA.MSG.SEARCH_AGAIN_CONFIRM, "question").yes(function () {
+          onClickbtnSearch();
+        }).no(function () {
+          e.preventDefault();
+        });
+      }
+    });
+
+    function IsChanged(){
+      if(self.dataSource.getDirtyDataCount() > 0){
+        return true;
+      } else{
+        return false;
+      }
+    }
+
+    self.$btnCancel.on('click', function(){
+      if (IsChanged()) {
+        return dews.confirm(gerp.MA.MSG.CLOSE_CONFIRM, "question")
+        .yes(function () {
+          thisDialog.close();
+        }).no(function () {
+          e.preventDefault();
+        });
+      } else{
+        thisDialog.close();
+      }
+    });
+
+    self.$btnAutoAdd.on('click', function (e) {
+      dews.confirm(dews.localize.get('조회기간의 자동생성 데이터를 삭제하고', 'D0115177', '', 'BEGEXC00100HOLIDAY_POP') + '\n' + dews.localize.get('다시 생성하시겠습니까?', 'M0109662', '', 'BEGEXC00100HOLIDAY_POP'), "ico2").yes(function () {
+        dews.api.post(dews.url.getApiUrl("CA", "FoundationWorkEXCSERVICE", "begexc00100_holiday_auto"), {
+          data: {
+            start_dt: self.s_yyyymmdd.getStartDate(),
+            end_dt: self.s_yyyymmdd.getEndDate()
+          }
+        }).done(function (data) {
+          dews.ui.loading.hide();
+          setTimeout(function () {
+            dews.alert(gerp.MA.MSG.SAVE_DONE_ALERT).done(function () {
+              self.dataSource.read();
+            });
+          }, 200);
+        }).fail(function (message) {
+          dews.error(message);
+        });
+      }).no(function () {
+        e.preventDefault();
+      })
+    });
+
+    function verify() {
+      //pk 중복 체크
+      var ret = null;
+
+      var items = $.grep(self.grid.dataItems(), function (data, i){
+        if(self.grid.getRowState(i) == 'added'){
+          data.index = i;
+          return true;
+        } else{
+          return false;
+        }
+      });
+
+      var len = self.grid.dataItems().length;
+      for(var i = len - 1; i >= 0; i--){
+
+        var data = self.grid.dataItem(i);
+
+        //중복값 체크
+        $.each(items, function(idx, row){
+          if(dews.date.format(row.BWRK_DT, 'yyyyMMdd') == dews.date.format(data.BWRK_DT, 'yyyyMMdd') && row.index != i){
+            ret = new VerifyNode(row.index, dews.localize.get("일자가 중복됩니다.", "M0109663", "", "BEGEXC00100HOLIDAY_POP"));
+            return false;
+          }
+        });
+      }
+
+      return (ret) ? ret : null;
+    }
+
+    function VerifyNode(idx, msg){
+      this.idx = idx,
+      this.msg = msg
+    }
+
+    function onClickbtnSearch(e){
+      self.dataSource.read();
+    }
+
+    self.dataSource.read();
+
+    //# sourceURL=view/CA/BEGEXC00100HOLIDAY_POP.js
+
+  });
+
+</script>
