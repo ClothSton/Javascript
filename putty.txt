@@ -1,0 +1,42 @@
+파일 경로 이동 : cd /home/douzone/dews-web/config/
+한 폴더씩 경로이동 : 
+1) cd /home
+2) cd douzone
+3) cd dews-web
+4) cd config
+
+파일 목록 확인 : ll (소문자 LL)
+
+파일열기 : vi mail.properties
+편집 시작 : i ( i 누르는 순간부터 편집 가능)
+저장 : (편집 끝나면 esc누르고):wq
+저장없이 나가기 : :q
+
+
+-----------------------------------------------------------
+서버기동
+
+파일경로이동 : cd /home/douzone/was/tomcat-8080/bin
+서버 기동 : ./startup.sh 
+서버 중지 : ./shutdown.sh 
+로그 확인 : (bin 경로에 있는 상태에서) tail -f ../logs/catalina.out
+cd /home/douzone/was/tomcat-8080/logs/
+tail -f catalina.out
+
+------------------------------------------------------------
+linux tomcat 셧다운 이슈
+
+리눅스 서버상에 톰캣 수동 재기동시 shutdown 시 간헐적으로 pid가 남는 경우가 있습니다.
+이런 상황에서 startup시 프로세스 중복으로 정상기동이 되지않습니다.
+
+8080 포트에 해당하는 프로세스를 강제로 죽이고, 실행하는 방법 공유드립니다.
+
+[1]pid 확인 명령어
+   netstat -anp |grep 8080
+
+[2]강제종료 : pid값은 기동시마다 변경됩니다. -9 옵션은 강제종료 옵션입니다.
+   kill -9 [8080 현재 PID값]
+
+[3]8080 포트 실행
+   cd /home/douzone/was/tomcat-8080/bin
+   ./startup.sh

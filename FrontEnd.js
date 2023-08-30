@@ -7,6 +7,14 @@ Reactjs code snippets (리액트 관련 스니펫 모음 제작자가 Charalampo
 //공통 소스경로
 //C:\Douzone\dews-web\view\js\MA
 
+//그리드 엑셀 통화 포멧적용
+formats: {
+  currency : "KRW"  //통화 포멧
+}
+//혹은
+Grid._grid.setColumnProperty("COULMN", 'excelFormat', '#,##0');
+
+
 //배열쪼개기
 var result = [];
 var count = 2000;
